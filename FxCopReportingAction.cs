@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Inedo.BuildMaster.Extensibility.Actions.Reporting;
-using Inedo.BuildMaster.Extensibility.Actions;
-using Inedo.BuildMaster.Web;
-using Inedo.BuildMaster;
 using System.IO;
+using Inedo.BuildMaster;
+using Inedo.BuildMaster.Extensibility.Actions;
+using Inedo.BuildMaster.Extensibility.Actions.Reporting;
+using Inedo.BuildMaster.Web;
 
 namespace Inedo.BuildMasterExtensions.FxCop
 {
@@ -111,7 +110,7 @@ namespace Inedo.BuildMasterExtensions.FxCop
             get 
             {
                 return String.IsNullOrEmpty(this.CustomOutputFile)
-                        ? Path.Combine(this.RemoteConfiguration.TempDirectory, ReportName)
+                        ? Path.Combine(this.Context.TempDirectory, ReportName)
                         : this.CustomOutputFile;
             }
         }
