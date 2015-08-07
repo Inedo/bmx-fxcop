@@ -27,6 +27,9 @@ namespace Inedo.BuildMasterExtensions.FxCop
         private CheckBox chkSearchGac;
         private CheckBox chkFailOnMissingRules;
 
+        public override bool DisplaySourceDirectory => true;
+        public override string SourceDirectoryLabel => "FxCop Working Directory:";
+
         protected override void CreateChildControls()
         {
             this.txtFxCopExecutablePath = new SourceControlFileFolderPicker
@@ -120,8 +123,7 @@ namespace Inedo.BuildMasterExtensions.FxCop
                 new FormFieldGroup("FxCop Executable Path",
                     "The full path of the FxCop command line utility (FxCopCmd.exe) used to generate the report output.",
                     false,
-                    new StandardFormField("FxCop Executable Path:", this.txtFxCopExecutablePath),
-                    new StandardFormField("Working Directory:", this.txtWorkingDirectory)
+                    new StandardFormField("FxCop Executable Path:", this.txtFxCopExecutablePath)
                 ),
                 new FormFieldGroup("Test File",
                     "The file or assembly to analyze, relative to the working directory.",
@@ -190,7 +192,7 @@ namespace Inedo.BuildMasterExtensions.FxCop
             var fxCopAction = (FxCopReportingAction)extension;
 
             this.txtFxCopExecutablePath.Text = fxCopAction.ExePath;
-            this.txtWorkingDirectory.Text = fxCopAction.WorkingDirectory;
+            this.txtWorkingDirectory.Text = fxCopAction.OverriddenSourceDirectory;
             this.txtRuleSetDirectory.Text = fxCopAction.RuleSetDirectory;
             this.txtCustomDictionary.Text = fxCopAction.CustomDictionary;
             this.txtOutputName.Text = fxCopAction.OutputName;
@@ -214,7 +216,7 @@ namespace Inedo.BuildMasterExtensions.FxCop
             return new FxCopReportingAction
             {
                 ExePath = this.txtFxCopExecutablePath.Text,
-                WorkingDirectory = this.txtWorkingDirectory.Text,
+                OverriddenSourceDirectory = this.txtWorkingDirectory.Text,
                 RuleSetDirectory = this.txtRuleSetDirectory.Text,
                 CustomDictionary = this.txtCustomDictionary.Text,
                 OutputName = this.txtOutputName.Text,

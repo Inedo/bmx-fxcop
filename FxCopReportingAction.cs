@@ -11,11 +11,9 @@ namespace Inedo.BuildMasterExtensions.FxCop
     /// <summary>
     /// FxCop reporting action
     /// </summary>
-    [ActionProperties(
-        "Generate FxCop Report",
-        "Runs FxCop and saves the output to a report.",
-        "Reporting")]
+    [ActionProperties("Generate FxCop Report", "Runs FxCop and saves the output to a report.")]
     [CustomEditor(typeof(FxCopReportingActionEditor))]
+    [Tag("Reporting")]
     public sealed class FxCopReportingAction : ReportingActionBase
     {
         /// <summary>
@@ -109,7 +107,7 @@ namespace Inedo.BuildMasterExtensions.FxCop
         {
             get 
             {
-                return String.IsNullOrEmpty(this.CustomOutputFile)
+                return string.IsNullOrEmpty(this.CustomOutputFile)
                         ? Path.Combine(this.Context.TempDirectory, ReportName)
                         : this.CustomOutputFile;
             }
@@ -124,9 +122,9 @@ namespace Inedo.BuildMasterExtensions.FxCop
             string workingDir = args[1];
             string arguments = BuildArguments();
 
-            LogInformation(String.Format("Executing FxCop command line: {0} {1}", exePath, arguments));
+            this.LogInformation(string.Format("Executing FxCop command line: {0} {1}", exePath, arguments));
 
-            ExecuteCommandLine(
+            this.ExecuteCommandLine(
                 exePath,
                 arguments,
                 workingDir
@@ -144,32 +142,32 @@ namespace Inedo.BuildMasterExtensions.FxCop
             var args = new List<string>();
 
             // specify assembly to test
-            args.Add(String.Format("/f:\"{0}\" /forceoutput", this.TestFile));
+            args.Add(string.Format("/f:\"{0}\" /forceoutput", this.TestFile));
 
             // specify the report path, whether it's a temp path or supplied by user
-            args.Add(String.Format("/out:\"{0}\"", this.GeneratedReportPath));
+            args.Add(string.Format("/out:\"{0}\"", this.GeneratedReportPath));
 
             // force XSL transform if one was supplied by the user
-            if (!String.IsNullOrEmpty(this.CustomOutputXslFile))
-                args.Add(String.Format("/outxsl:\"{0}\" /applyoutxsl", this.CustomOutputXslFile));
+            if (!string.IsNullOrEmpty(this.CustomOutputXslFile))
+                args.Add(string.Format("/outxsl:\"{0}\" /applyoutxsl", this.CustomOutputXslFile));
 
             foreach (string customDir in this.DependencyDirectories ?? new string[0])
-                args.Add(String.Format("/directory:\"{0}\"", customDir));
+                args.Add(string.Format("/directory:\"{0}\"", customDir));
 
             foreach (string ruleSet in this.RuleSets ?? new string[0])
-                args.Add(String.Format("/ruleset:\"{0}\"", ruleSet));
+                args.Add(string.Format("/ruleset:\"{0}\"", ruleSet));
 
             foreach (string rule in this.Rules ?? new string[0])
-                args.Add(String.Format("/rule:\"{0}\"", rule));
+                args.Add(string.Format("/rule:\"{0}\"", rule));
 
             foreach (string ruleId in this.RuleIds ?? new string[0])
-                args.Add(String.Format("/ruleid:\"{0}\"", ruleId));
+                args.Add(string.Format("/ruleid:\"{0}\"", ruleId));
 
-            if (!String.IsNullOrEmpty(this.CustomDictionary))
-                args.Add(String.Format("/dictionary:\"{0}\"", this.CustomDictionary));
+            if (!string.IsNullOrEmpty(this.CustomDictionary))
+                args.Add(string.Format("/dictionary:\"{0}\"", this.CustomDictionary));
 
-            if (!String.IsNullOrEmpty(this.RuleSetDirectory))
-                args.Add(String.Format("/rulesetdirectory:\"{0}\"", this.RuleSetDirectory));
+            if (!string.IsNullOrEmpty(this.RuleSetDirectory))
+                args.Add(string.Format("/rulesetdirectory:\"{0}\"", this.RuleSetDirectory));
 
             if (this.VerboseOutput)
                 args.Add("/verbose");
@@ -183,24 +181,26 @@ namespace Inedo.BuildMasterExtensions.FxCop
             // add any additional arguments supplied by the user
             args.Add(this.Arguments);
 
-            return String.Join(" ", args.ToArray());
+            return string.Join(" ", args.ToArray());
         }
 
         protected override void Execute()
         {
-            var absExePath = getAbsPath(ExePath);
-            var absWorkingDirectory = getAbsPath(WorkingDirectory);
+            var absExePath = this.ExePath;
+            var absWorkingDirectory = this.Context.SourceDirectory;
 
-            LogDebug("Exe Path: " + absExePath);
-            LogDebug("Working Dir: " + absWorkingDirectory);
+            this.LogDebug("Exe Path: " + absExePath);
+            this.LogDebug("Working Dir: " + absWorkingDirectory);
             string report = ExecuteRemoteCommand("fxcop", absExePath, absWorkingDirectory);
 
-            SubmitReport(report);
+            this.SubmitReport(report);
         }
 
-        public override string ToString()
+        public override ActionDescription GetActionDescription()
         {
-            return String.Format("Execute FxCop command line against {0}", this.TestFile);
+            return new ActionDescription(
+                new ShortActionDescription("Run FxCop"),
+                new LongActionDescription("against ", new Hilite(this.TestFile)));
         }
     }
 }
